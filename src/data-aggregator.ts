@@ -92,14 +92,15 @@ const main = async() => {
     console.log("connected")
     // const markets = await findAllMarkets(connection(), OPENBOOK_PROGRAM_ID, provider())
     const marketDetails = await openBookClient().getMarketAccount(MARKET)
-    // console.log(marketDetails)
+    let marketBeginTime = 0
     if (marketDetails) {
+      marketBeginTime = marketDetails.registrationTime.toNumber()
       const bids = await openBookClient().getBookSide(marketDetails?.bids)
       const asks = await openBookClient().getBookSide(marketDetails?.asks)
       
       if (bids) {
         const _bids = openBookClient().getLeafNodes(bids)
-        const parsedBids = orderBookSide(_bids)
+        const parsedBids = orderBookSide(_bids, true)
         console.log(parsedBids)
       }
       if (asks) {
@@ -109,6 +110,29 @@ const main = async() => {
       }
       
       
+    }
+    // TODO: To go back we have to parse signatures and the transaction details to
+    // handle the results
+    console.log(`Need to look back to ${marketBeginTime} blockTime`)
+
+    // TODO: This may not be the thing to be querying against, could be the books market vs this...
+    const signatures = await connection().getSignaturesForAddress(MARKET, {})
+    // TODO: handle slot / blocktime such that we stop when market was created...
+    const lastSignatureReturned = signatures.pop()
+    if (lastSignatureReturned) {
+      if(lastSignatureReturned?.blockTime && lastSignatureReturned?.blockTime > marketBeginTime) {
+        // TODO: Get the signature and look back from there.. Loop until done
+        console.log(`Still need to loop...`)
+        console.log(lastSignatureReturned)
+        // TODO: Will need to consume and parse each of these to be able to build the data...
+        // This may be a work backwards approach to collecting the data (from current book) to previous
+        const transaction = await connection().getTransaction(lastSignatureReturned.signature, {
+          maxSupportedTransactionVersion: 1
+        })
+        console.log(transaction)
+      } else [
+        console.log('finished')
+      ]
     }
   } catch(e) {
     console.error(e)
