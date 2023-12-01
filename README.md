@@ -7,3 +7,12 @@ You can also backfill data, however this can be expensive and take time. Be awar
 
 ## WARRANTY
 THIS SOFTWARE WILL LIKELY DO YOU HARM. NO ONE SHOULD OPERATE IT, EVER. IF YOU DO SO YOU DO AT YOUR OWN RISK. THE CREATOR(S) OF THIS SOFTWARE OFFER NO WARRANTY AND IS OFFERED AS IS. ANY RESPONSIBILITY IS YOUR OWN.
+
+## Installation
+docker build .
+
+login: openbook
+password: example
+database: openbookdata
+
+docker run -p 5432:5432 -v "$(pwd)"/timescale/data/pgdata:/home/postgres/pgdata/data <ID>
